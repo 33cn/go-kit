@@ -1,8 +1,10 @@
 package convert
 
 import (
+	"encoding/json"
 	"math"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -632,4 +634,20 @@ func TestStructToMap(t *testing.T) {
 	assert.Empty(t, StructToStringMap("err type"))
 	assert.Empty(t, StructToInterfaceMap(nil))
 	assert.Empty(t, StructToStringMap(nil))
+}
+
+func TestJsonUseNumber(t *testing.T) {
+	s := `{"a":{"b":{"ids":764197655051251712}}}`
+	events := make(map[string]interface{})
+
+	d := json.NewDecoder(strings.NewReader(s))
+	d.UseNumber()
+	err := d.Decode(&events)
+	assert.NoError(t, err)
+
+	a := events["a"].(map[string]interface{})
+	b := a["b"].(map[string]interface{})
+	t.Log(ToString(b["ids"]))
+	t.Log(ToInt64(b["ids"]))
+	t.Log(ToFloat64(b["ids"]))
 }
