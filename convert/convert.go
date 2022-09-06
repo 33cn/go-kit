@@ -3,8 +3,10 @@ package convert
 import (
 	"encoding/binary"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"math"
+	"math/big"
 	"reflect"
 	"strconv"
 	"strings"
@@ -49,6 +51,14 @@ func ToBool(src interface{}) bool {
 	case string, []byte, []rune:
 		result, _ := strconv.ParseBool(ToString(v))
 		return result
+	case interface{ Int64() int64 }:
+		return v.Int64() > 0
+	case *big.Float:
+		result, _ := v.Float64()
+		return result > 0
+	case json.Number:
+		result, _ := v.Int64()
+		return result > 0
 	default:
 		return false
 	}
@@ -112,6 +122,14 @@ func ToInt64(src interface{}) int64 {
 		return result
 	case []byte:
 		return BytesToInt64(v)
+	case interface{ Int64() int64 }:
+		return v.Int64()
+	case *big.Float:
+		result, _ := v.Int64()
+		return result
+	case json.Number:
+		result, _ := v.Int64()
+		return result
 	default:
 		return 0
 	}
@@ -175,6 +193,14 @@ func ToUint64(src interface{}) uint64 {
 		return result
 	case []byte:
 		return BytesToUint64(v)
+	case interface{ Uint64() uint64 }:
+		return v.Uint64()
+	case *big.Float:
+		result, _ := v.Uint64()
+		return result
+	case json.Number:
+		result, _ := v.Int64()
+		return uint64(result)
 	default:
 		return 0
 	}
@@ -216,6 +242,14 @@ func ToFloat64(src interface{}) float64 {
 		return result
 	case []byte:
 		return BytesToFloat64(v)
+	case interface{ Int64() int64 }:
+		return float64(v.Int64())
+	case *big.Float:
+		result, _ := v.Float64()
+		return result
+	case json.Number:
+		result, _ := v.Float64()
+		return result
 	default:
 		return 0
 	}
